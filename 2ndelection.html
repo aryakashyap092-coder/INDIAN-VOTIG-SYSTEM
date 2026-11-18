@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BHARAT E-VOTE | Future Digital Voting Platform</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { background:#0a0e1a; color:#fff; font-family:'Inter',system-ui,sans-serif; overflow-x:hidden; }
+  .glass { background:rgba(17,24,39,0.6); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.1); }
+  .glass-light { background:rgba(255,255,255,0.1); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.2); }
+  .text-gradient { background:linear-gradient(to right,#FF9933,#ffffff,#138808); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .network-bg { background-image:linear-gradient(rgba(255,153,51,0.08) 1px,transparent 1px),linear-gradient(90deg,rgba(19,136,8,0.08) 1px,transparent 1px); background-size:50px 50px; }
+  ::-webkit-scrollbar{width:8px} ::-webkit-scrollbar-track{background:#0a0e1a} ::-webkit-scrollbar-thumb{background:#FF9933;border-radius:4px}
+  .page{display:none} .page.active{display:block;animation:fadeIn .5s}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+  .animate-float{animation:float 6s ease-in-out infinite}
+  @keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(255,153,51,0.5)}50%{box-shadow:0 0 40px rgba(255,153,51,0.8)}}
+  .pulse-glow{animation:pulse-glow 2s ease-in-out infinite}
+  @keyframes spin-slow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  .spin-slow{animation:spin-slow 30s linear infinite}
+  .step-circle{transition:all .3s}
+  .candidate-card{transition:all .3s;cursor:pointer}
+  .candidate-card:hover{transform:translateY(-5px)}
+  .hidden{display:none!important}
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem}
+</style>
+</head>
+<body class="network-bg min-h-screen flex flex-col">
+
+<!-- NAVBAR -->
+<nav class="fixed top-0 w-full z-50 glass border-b border-white/10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="showPage('home')">
+        <i data-lucide="shield-check" class="w-7 h-7 text-orange-400"></i>
+        <span class="text-lg font-bold">BHARAT <span class="text-orange-400">E-VOTE</span></span>
+      </div>
+      <div class="hidden md:flex items-center space-x-6">
+        <button onclick="showPage('home')" class="hover:text-orange-400 transition">Home</button>
+        <button onclick="showPage('elections')" class="hover:text-orange-400 transition">Elections</button>
+        <button onclick="showPage('dashboard')" class="hover:text-orange-400 transition">Dashboard</button>
+        <button onclick="showPage('results')" class="hover:text-orange-400 transition">Results</button>
+        <button onclick="showPage('admin-login')" class="hover:text-orange-400 transition">Admin</button>
+        <button onclick="showPage('login')" class="px-4 py-2 rounded-lg bg-orange-500 text-black font-bold hover:bg-orange-400 transition">Login</button>
+        <button onclick="showPage('register')" class="px-4 py-2 rounded-lg border border-orange-500 text-orange-400 font-bold hover:bg-orange-500 hover:text-black transition">Register</button>
+      </div>
+      <button class="md:hidden text-white" onclick="toggleMobileMenu()">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+    </div>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden glass pb-4 px-4 flex-col space-y-3">
+    <button onclick="showPage('home')" class="block w-full text-left py-2">Home</button>
+    <button onclick="showPage('elections')" class="block w-full text-left py-2">Elections</button>
+    <button onclick="showPage('dashboard')" class="block w-full text-left py-2">Dashboard</button>
+    <button onclick="showPage('results')" class="block w-full text-left py-2">Results</button>
+    <button onclick="showPage('admin-login')" class="block w-full text-left py-2">Admin</button>
+    <button onclick="showPage('login')" class="block w-full text-left py-2 text-orange-400 font-bold">Login</button>
+    <button onclick="showPage('register')" class="block w-full text-left py-2 text-orange-400 font-bold">Register</button>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div id="home" class="page active flex-grow pt-20">
+  <section class="relative min-h-[90vh] flex items-center justify-center text-center px-4">
+    <div class="absolute inset-0 z-0">
+      <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-orange-500/20 rounded-full blur-3xl animate-float"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-72 h-72 bg-green-600/20 rounded-full blur-3xl animate-float" style="animation-delay:1s"></div>
+      <div class="absolute top-1/2 left-1/2 w-96 h-96 bg-blue-700/10 rounded-full blur-3xl spin-slow"></div>
+    </div>
+    <div class="relative z-10 max-w-4xl">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-light mb-6 text-sm">
+        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+        Government of India Digital Initiative (Mock Demo)
+      </div>
+      <h1 class="text-5xl md:text-7xl font-extrabold mb-6 text-gradient leading-tight">India's Future<br>Digital Voting Platform</h1>
+      <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">Secure, Transparent and Accessible Voting for Every Citizen</p>
+      <div class="flex flex-wrap gap-4 justify-center">
+        <button onclick="showPage('register')" class="px-8 py-4 bg-orange-500 text-black font-bold rounded-lg hover:bg-orange-400 transition shadow-lg flex items-center gap-2"><i data-lucide="fingerprint" class="w-5 h-5"></i> Register to Vote</button>
+        <button onclick="showPage('login')" class="px-8 py-4 border border-green-600 text-green-500 font-bold rounded-lg hover:bg-green-600 hover:text-white transition shadow-lg flex items-center gap-2"><i data-lucide="lock" class="w-5 h-5"></i> Login</button>
+      </div>
+    </div>
+  </section>
+  <section id="features" class="max-w-7xl mx-auto px-4 py-20">
+    <h2 class="text-4xl font-bold text-center mb-12 text-gradient">Platform Features</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="featureGrid"></div>
+  </section>
+  <section class="max-w-7xl mx-auto px-4 py-20">
+    <h2 class="text-4xl font-bold text-center mb-12 text-gradient">How It Works</h2>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="stepsGrid"></div>
+  </section>
+  <section class="max-w-7xl mx-auto px-4 py-20">
+    <div class="glass p-8 rounded-3xl">
+      <h2 class="text-3xl font-bold mb-6 text-orange-400">About The System</h2>
+      <div class="grid md:grid-cols-2 gap-8 text-gray-300">
+        <p>Our platform demonstrates how India could conduct secure online elections. With Aadhaar-based verification, AI fraud detection, and blockchain-inspired ledgers, we ensure "One Citizen, One Vote". The system is designed to be accessible to the elderly and disabled, featuring voice guidance and high-contrast modes.</p>
+        <p>From advanced device locking mechanisms that prevent multiple logins to real-time transparent result dashboards, BHARAT E-VOTE is a comprehensive solution for modern democracy. <strong class="text-orange-400">This is strictly an educational mockup.</strong></p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- REGISTER PAGE -->
+<div id="register" class="page flex-grow pt-20 min-h-screen flex items-center justify-center p-4">
+  <div class="glass w-full max-w-2xl rounded-3xl p-8">
+    <div id="regStep1">
+      <h2 class="text-3xl font-bold mb-2 text-center text-gradient">Voter Registration</h2>
+      <p class="text-center text-gray-400 mb-8">Secure Digital Identity Creation</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label class="block text-sm text-gray-400 mb-1">Full Name</label><input type="text" class="w-full px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-orange-500 outline-none" placeholder="Aarav Sharma"></div>
+        <div><label class="block text-sm text-gray-400 mb-1">Aadhaar Number</label><input type="text" class="w-full px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-orange-500 outline-none" placeholder="XXXX XXXX XXXX"></div>
+        <div><label class="block text-sm text-gray-400 mb-1">Voter ID</label><input type="text" class="w-full px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-orange-500 outline-none" placeholder="ABC1234567"></div>
+        <div><label class="block text-sm text-gray-400 mb-1">Date of Birth</label><input type="date" class="w-full px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-orange-500 outline-none"></div>
+        <div><label class="block text-sm text-gray-400 mb-1">Mobile Number</label><input type="tel" class="w-full px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-orange-500 outline-none" placeholder="+91 98765 43210"></div>
+        <div><label class="block text-sm text-gray-400 mb-1">Email</label><input type="email" class="w-full px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-orange-500 outline-none" placeholder="aarav@example.com"></div>
+        <div><label class="block text-sm text-gray-400 mb-1">State</label><input type="text" class="w-full px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-orange-500 outline-none" placeholder="Maharashtra"></div>
+        <div><label class="block text-sm text-gray-400 mb-1">District</label><input type="text" class="w-full px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-orange-500 outline-none" placeholder="Pune"></div>
+        <div class="md:col-span-2"><label class="block text-sm text-gray-400 mb-1">Address</label><input type="text" class="w-full px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-orange-500 outline-none" placeholder="123 MG Road, Pune"></div>
+      </div>
+      <button onclick="nextRegStep()" class="w-full mt-6 py-3 bg-orange-500 text-black font-bold rounded-lg hover:bg-orange-400 transition">Next: Verification</button>
+    </div>
+    <div id="regStep2" class="hidden flex flex-col items-center gap-6 py-10">
+      <div class="w-32 h-32 rounded-full border-4 border-orange-500 flex items-center justify-center pulse-glow"><i data-lucide="scan-face" class="w-16 h-16 text-orange-500"></i></div>
+      <h3 class="text-xl font-bold">Aadhaar & Face Verification</h3>
+      <p class="text-gray-400 text-center max-w-md">Mock verification in progress. Linking Aadhaar data and scanning facial biometrics...</p>
+      <button onclick="nextRegStep()" class="px-8 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-500 transition">Verify Successfully</button>
+    </div>
+    <div id="regStep3" class="hidden flex flex-col items-center gap-6 py-10 text-center">
+      <i data-lucide="check-circle" class="w-16 h-16 text-green-500"></i>
+      <h3 class="text-2xl font-bold text-gradient">Registration Successful!</h3>
+      <p class="text-gray-400 max-w-md">Your account has been created. An OTP has been sent to your registered mobile number for final confirmation.</p>
+      <button onclick="showPage('login')" class="px-8 py-3 bg-blue-900 text-white font-bold rounded-lg hover:bg-blue-800 transition">Proceed to Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN PAGE -->
+<div id="login" class="page flex-grow pt-20 min-h-screen flex items-center justify-center p-4">
+  <div class="glass w-full max-w-md p-8 rounded-3xl">
+    <h2 class="text-2xl font-bold text-center text-gradient mb-6">Secure Login</h2>
+    <form onsubmit="event.preventDefault();showPage('dashboard')" class="space-y-4">
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">Email or Voter ID</label>
+        <div class="relative">
+          <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4"></i>
+          <input type="text" class="w-full pl-10 pr-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-orange-500 outline-none" placeholder="Enter your ID">
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">Password</label>
+        <div class="relative">
+          <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4"></i>
+          <input type="password" class="w-full pl-10 pr-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-orange-500 outline-none" placeholder="Enter password">
+        </div>
+      </div>
+      <div class="flex items-center justify-between text-sm">
+        <label class="flex items-center gap-2"><input type="checkbox" class="rounded"> Remember me</label>
+        <button type="button" onclick="alert('Mock: Reset link sent!')" class="text-orange-400 hover:underline">Forgot password?</button>
+      </div>
+      <button type="submit" class="w-full py-3 bg-orange-500 text-black font-bold rounded-lg hover:bg-orange-400 transition">Login Securely</button>
+      <div class="text-center text-sm text-gray-400">New User? <button type="button" onclick="showPage('register')" class="text-orange-400 hover:underline">Register Here</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN PAGE -->
+<div id="admin-login" class="page flex-grow pt-20 min-h-screen flex items-center justify-center p-4">
+  <div class="glass w-full max-w-md p-8 rounded-3xl">
+    <div class="flex flex-col items-center mb-6">
+      <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
+        <i data-lucide="shield-alert" class="w-8 h-8 text-red-500"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-center text-gradient">Admin Secure Login</h2>
+      <p class="text-gray-400 text-sm text-center mt-2">Authorized Personnel Only</p>
+    </div>
+    <form onsubmit="event.preventDefault(); checkAdminLogin()" class="space-y-4">
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">Admin Username</label>
+        <div class="relative">
+          <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4"></i>
+          <input type="text" id="adminUser" class="w-full pl-10 pr-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-red-500 outline-none" placeholder="Enter admin username">
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">Password</label>
+        <div class="relative">
+          <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4"></i>
+          <input type="password" id="adminPass" class="w-full pl-10 pr-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-red-500 outline-none" placeholder="Enter admin password">
+        </div>
+      </div>
+      <p id="adminError" class="text-red-500 text-sm text-center hidden bg-red-500/10 py-2 rounded-lg">❌ Invalid credentials! Access Denied.</p>
+      <button type="submit" class="w-full py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-500 transition flex items-center justify-center gap-2">
+        <i data-lucide="log-in" class="w-5 h-5"></i> Access Dashboard
+      </button>
+      <div class="text-center text-sm text-gray-400">
+        <button type="button" onclick="showPage('home')" class="text-orange-400 hover:underline">Back to Home</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="page flex-grow pt-20 max-w-7xl mx-auto px-4 py-10">
+  <h1 class="text-4xl font-bold text-gradient mb-2">Welcome, Aarav Sharma</h1>
+  <p class="text-gray-400 mb-10">Voter ID: ABC1234567 | Status: <span class="text-green-500 font-bold">Active & Verified</span></p>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+    <div class="glass p-4 rounded-2xl flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500"><i data-lucide="vote" class="w-6 h-6"></i></div><div><p class="text-sm text-gray-400">Available Elections</p><h3 class="text-xl font-bold" id="dashActiveElections">0</h3></div></div>
+    <div class="glass p-4 rounded-2xl flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-green-600/10 flex items-center justify-center text-green-500"><i data-lucide="check-circle" class="w-6 h-6"></i></div><div><p class="text-sm text-gray-400">Votes Cast</p><h3 class="text-xl font-bold">1</h3></div></div>
+    <div class="glass p-4 rounded-2xl flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-blue-700/10 flex items-center justify-center text-blue-400"><i data-lucide="shield-check" class="w-6 h-6"></i></div><div><p class="text-sm text-gray-400">Account Status</p><h3 class="text-xl font-bold">Verified</h3></div></div>
+    <div class="glass p-4 rounded-2xl flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500"><i data-lucide="alert-circle" class="w-6 h-6"></i></div><div><p class="text-sm text-gray-400">Verification</p><h3 class="text-xl font-bold">100% Secure</h3></div></div>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 glass p-6 rounded-2xl">
+      <h2 class="text-xl font-bold mb-4">Active & Upcoming Elections</h2>
+      <div class="space-y-4" id="dashElectionList"></div>
+    </div>
+    <div class="glass p-6 rounded-2xl">
+      <h2 class="text-xl font-bold mb-4">Vote History</h2>
+      <div class="bg-black/20 p-4 rounded-lg border-l-4 border-green-600">
+        <p class="text-sm text-gray-400">Election: Mumbai Municipal 2023</p>
+        <p class="font-bold text-green-500">Vote Cast Successfully</p>
+        <p class="text-xs mt-2 text-gray-500">Ref ID: XFR-992-83UJ-2023</p>
+        <p class="text-xs text-gray-500">Timestamp: 15-03-2023 14:32</p>
+      </div>
+      <div class="mt-4 p-4 bg-blue-900/20 rounded-lg border border-blue-700/30">
+        <h3 class="font-bold text-sm mb-2">Notifications</h3>
+        <p class="text-xs text-gray-400">✅ Your vote was recorded on the blockchain ledger.</p>
+        <p class="text-xs text-gray-400">🔒 Device locked for security.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ELECTIONS -->
+<div id="elections" class="page flex-grow pt-20 max-w-7xl mx-auto px-4 py-10">
+  <h1 class="text-4xl font-bold text-gradient mb-10">Active Elections</h1>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="electionGrid"></div>
+</div>
+
+<!-- VOTE PAGE -->
+<div id="vote" class="page flex-grow pt-20 max-w-4xl mx-auto px-4 py-10">
+  <div id="voteContainer">
+    <h1 class="text-3xl font-bold text-center text-gradient mb-2">Secure Voting Process</h1>
+    <p class="text-center text-gray-400 mb-10" id="voteElectionName"></p>
+    <div class="flex justify-center mb-10">
+      <div class="flex items-center gap-2">
+        <div id="step0" class="step-circle w-10 h-10 rounded-full bg-orange-500 text-black flex items-center justify-center font-bold">1</div>
+        <div class="w-8 md:w-16 h-1 bg-gray-700" id="line0"></div>
+        <div id="step1" class="step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center font-bold">2</div>
+        <div class="w-8 md:w-16 h-1 bg-gray-700" id="line1"></div>
+        <div id="step2" class="step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center font-bold">3</div>
+        <div class="w-8 md:w-16 h-1 bg-gray-700" id="line2"></div>
+        <div id="step3" class="step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center font-bold">4</div>
+      </div>
+    </div>
+    <div class="glass p-8 rounded-3xl" id="voteContent"></div>
+  </div>
+  <div id="voteSuccess" class="hidden min-h-[80vh] flex items-center justify-center px-4">
+    <div class="glass max-w-md w-full p-8 rounded-3xl text-center">
+      <div class="w-20 h-20 rounded-full bg-green-600/20 flex items-center justify-center mx-auto mb-6 pulse-glow">
+        <i data-lucide="check-circle-2" class="w-12 h-12 text-green-500"></i>
+      </div>
+      <h1 class="text-3xl font-bold text-gradient mb-4">Vote Successfully Cast</h1>
+      <p class="text-gray-400 mb-6">Your vote has been securely encrypted and stored in the blockchain ledger.</p>
+      <div class="bg-black/30 p-4 rounded-xl text-left mb-6 border border-white/10">
+        <p class="text-sm text-gray-400">Unique Vote Reference Number</p>
+        <p class="text-xl font-mono font-bold text-orange-500" id="voteRef"></p>
+        <p class="text-xs text-gray-500 mt-2" id="voteTimestamp"></p>
+      </div>
+      <p class="text-yellow-400 text-sm mb-6 flex items-center justify-center gap-2"><i data-lucide="lock" class="w-4 h-4"></i> Election is now Read-Only. You cannot vote again.</p>
+      <button onclick="showPage('results')" class="w-full py-3 bg-blue-900 text-white rounded-lg font-bold hover:bg-blue-800 transition">View Live Results</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="page flex-grow pt-20 max-w-7xl mx-auto px-4 py-10">
+  <h1 class="text-4xl font-bold text-gradient mb-10 text-center">Election Results</h1>
+  <div class="glass p-8 rounded-3xl mb-10 text-center">
+    <p class="text-gray-400 mb-2">🏆 Leading Candidate</p>
+    <h2 class="text-4xl font-bold text-gradient mb-4" id="winnerName">-</h2>
+    <p class="text-xl text-gray-300 mb-4" id="winnerParty">-</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+      <div><canvas id="pieChart"></canvas></div>
+      <div><canvas id="barChart"></canvas></div>
+    </div>
+  </div>
+  <div class="glass p-6 rounded-2xl">
+    <h2 class="text-xl font-bold mb-4">State-wise Statistics</h2>
+    <canvas id="stateChart" height="80"></canvas>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="admin" class="page flex-grow pt-20 max-w-7xl mx-auto px-4 py-10">
+  <h1 class="text-3xl font-bold text-gradient mb-10">Admin Control Center</h1>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+    <div class="glass p-4 rounded-2xl flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500"><i data-lucide="users" class="w-6 h-6"></i></div><div><p class="text-sm text-gray-400">Total Users</p><h3 class="text-xl font-bold">25.4M</h3></div></div>
+    <div class="glass p-4 rounded-2xl flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-green-600/10 flex items-center justify-center text-green-500"><i data-lucide="vote" class="w-6 h-6"></i></div><div><p class="text-sm text-gray-400">Votes Cast</p><h3 class="text-xl font-bold" id="adminTotalVotes">0</h3></div></div>
+    <div class="glass p-4 rounded-2xl flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-blue-700/10 flex items-center justify-center text-blue-400"><i data-lucide="activity" class="w-6 h-6"></i></div><div><p class="text-sm text-gray-400">Turnout</p><h3 class="text-xl font-bold">71.8%</h3></div></div>
+    <div class="glass p-4 rounded-2xl flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500"><i data-lucide="shield-alert" class="w-6 h-6"></i></div><div><p class="text-sm text-gray-400">Fraud Alerts</p><h3 class="text-xl font-bold">14</h3></div></div>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+    <div class="lg:col-span-2 glass p-6 rounded-2xl">
+      <h2 class="text-xl font-bold mb-6">Votes by State</h2>
+      <canvas id="adminStateChart" height="100"></canvas>
+    </div>
+    <div class="glass p-6 rounded-2xl">
+      <div class="flex items-center gap-2 mb-6"><i data-lucide="brain-circuit" class="text-orange-500"></i><h2 class="text-xl font-bold">AI Fraud Detection</h2></div>
+      <div class="space-y-4">
+        <div class="bg-red-500/10 border-l-4 border-red-500 p-3 rounded-r-lg"><p class="text-red-500 text-xs font-bold">HIGH RISK</p><p class="text-sm text-gray-300">Duplicate Aadhaar detected: XXX-XXX-1234</p></div>
+        <div class="bg-yellow-500/10 border-l-4 border-yellow-500 p-3 rounded-r-lg"><p class="text-yellow-500 text-xs font-bold">MEDIUM RISK</p><p class="text-sm text-gray-300">Multiple logins from same device</p></div>
+        <div class="bg-blue-700/10 border-l-4 border-blue-700 p-3 rounded-r-lg"><p class="text-blue-400 text-xs font-bold">LOW RISK</p><p class="text-sm text-gray-300">Unusual voting pattern detected</p></div>
+        <div class="bg-green-600/10 border-l-4 border-green-600 p-3 rounded-r-lg"><p class="text-green-500 text-xs font-bold">SECURE</p><p class="text-sm text-gray-300">All systems operating normally</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="glass p-6 rounded-2xl">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold">Election Management</h2>
+        <button onclick="openElectionModal()" class="flex items-center gap-1 px-3 py-2 bg-orange-500 text-black rounded-lg text-sm font-bold hover:bg-orange-400 transition">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Add New
+        </button>
+      </div>
+      <div class="space-y-2" id="adminElectionList"></div>
+    </div>
+    <div class="glass p-6 rounded-2xl">
+      <h2 class="text-xl font-bold mb-4">Live Result Projection</h2>
+      <canvas id="adminPieChart" height="180"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT ELECTION MODAL -->
+<div id="electionModal" class="modal-bg hidden">
+  <div class="glass w-full max-w-md p-8 rounded-3xl border border-orange-500/30 max-h-[90vh] overflow-y-auto">
+    <h2 class="text-2xl font-bold text-center text-gradient mb-6" id="modalTitle">Add New Election</h2>
+    <form onsubmit="event.preventDefault(); saveElection()" class="space-y-4">
+      <input type="hidden" id="editId">
+      <div>
+        <label class="block text-sm text-gray-400 mb-1">Election Name</label>
+        <input type="text" id="elName" class="w-full px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-orange-500 outline-none" placeholder="e.g. Delhi State Election" required>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Date</label>
+          <input type="date" id="elDate" class="w-full px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-orange-500 outline-none" required>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Status</label>
+          <select id="elStatus" class="w-full px-4 py-2 rounded-lg bg-black/30 border border-white/10 focus:border-orange-500 outline-none">
+            <option value="LIVE" class="bg-gray-800">LIVE</option>
+            <option value="UPCOMING" class="bg-gray-800">UPCOMING</option>
+            <option value="COMPLETED" class="bg-gray-800">COMPLETED</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-400 mb-2">Candidates / Parties</label>
+        <div id="candidateList" class="space-y-3"></div>
+        <button type="button" onclick="addCandidateRow()" class="mt-2 flex items-center gap-1 text-sm text-orange-400 hover:underline">
+          <i data-lucide="plus" class="w-4 h-4"></i> Add Candidate
+        </button>
+      </div>
+      <div class="flex gap-3 pt-4">
+        <button type="button" onclick="closeElectionModal()" class="flex-1 py-3 border border-gray-500 text-gray-300 rounded-lg font-bold hover:bg-gray-700 transition">Cancel</button>
+        <button type="submit" class="flex-1 py-3 bg-orange-500 text-black rounded-lg font-bold hover:bg-orange-400 transition">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- AI ASSISTANT -->
+<button onclick="toggleAI()" class="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-orange-500 text-black flex items-center justify-center shadow-lg hover:scale-110 transition pulse-glow">
+  <i data-lucide="bot" class="w-7 h-7" id="aiIcon"></i>
+</button>
+<div id="aiPanel" class="hidden fixed bottom-24 right-6 z-50 w-80 h-96 glass rounded-2xl flex flex-col overflow-hidden border border-orange-500/30">
+  <div class="bg-orange-500 text-black p-4 font-bold flex items-center gap-2"><i data-lucide="bot" class="w-5 h-5"></i> AI Support Center</div>
+  <div class="flex-1 p-4 space-y-3 overflow-y-auto" id="aiMessages"></div>
+  <div class="p-2 border-t border-white/10 flex">
+    <input type="text" id="aiInput" class="flex-1 bg-transparent outline-none text-sm px-2" placeholder="Type your message..." onkeypress="if(event.key==='Enter')sendAI()">
+    <button onclick="sendAI()" class="text-orange-500 p-2"><i data-lucide="send" class="w-4 h-4"></i></button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="glass border-t border-white/10 mt-20">
+  <div class="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div><div class="flex items-center gap-2 mb-4"><i data-lucide="shield-check" class="w-6 h-6 text-orange-400"></i><span class="text-lg font-bold">BHARAT E-VOTE</span></div><p class="text-sm text-gray-400">Future Digital Voting Platform. Educational & Demonstration purposes only.</p></div>
+    <div><h4 class="font-bold mb-4 text-orange-400">Quick Links</h4><ul class="space-y-2 text-sm text-gray-400"><li><button onclick="showPage('home')">About System</button></li><li><button onclick="showPage('home')">How It Works</button></li><li><button onclick="showPage('home')">Security Features</button></li><li><button onclick="showPage('home')">Accessibility</button></li></ul></div>
+    <div><h4 class="font-bold mb-4 text-orange-400">Contact</h4><ul class="space-y-2 text-sm text-gray-400"><li class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4"></i> support@bharatevote.gov.in</li><li class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4"></i> 1800-XXX-XXXX</li><li class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> New Delhi, India</li></ul></div>
+  </div>
+  <div class="border-t border-white/10 py-4 text-center text-xs text-gray-500">© 2024 BHARAT E-VOTE. All Rights Reserved. Mock Educational Project.</div>
+</footer>
+
+<script>
+// DATA
+const features = [
+  {icon:'fingerprint',title:'Aadhaar Verification',desc:'Secure mock linkage to verify identity.'},
+  {icon:'scan-face',title:'Face Verification',desc:'AI-powered liveness detection.'},
+  {icon:'key-round',title:'One Citizen One Vote',desc:'Strict Aadhaar & Device locking.'},
+  {icon:'lock',title:'End-to-End Encryption',desc:'Military-grade vote protection.'},
+  {icon:'boxes',title:'Blockchain Ledger',desc:'Immutable vote tracking system.'},
+  {icon:'activity',title:'Real-Time Monitoring',desc:'Transparent election tracking.'},
+  {icon:'shield-check',title:'Secure Authentication',desc:'Multi-layer security protocols.'},
+  {icon:'brain-circuit',title:'AI Fraud Detection',desc:'Real-time anomaly detection.'},
+  {icon:'file-lock-2',title:'Secure Audit Logs',desc:'Tamper-proof election history.'},
+  {icon:'bar-chart-3',title:'Transparent Results',desc:'Live result dashboards.'},
+  {icon:'eye',title:'Vote Tracking ID',desc:'Unique reference for every vote.'},
+  {icon:'languages',title:'Multi-Language',desc:'7 regional languages supported.'},
+];
+const steps = ['User Registration','Aadhaar Verification','Face Verification','OTP Verification','Eligibility Check','Vote Casting','Vote Encryption','Vote Stored Securely','Election Locked','Result Publication'];
+
+// DATABASE (Mock)
+let elections = [
+  { 
+    id: 1, 
+    name:'Lok Sabha Election', 
+    date:'2024-05-15', 
+    status:'LIVE',
+    candidates: [
+      {name:'Narendra Modi', party:'BJP', symbol:'🪷', votes: 4500},
+      {name:'Rahul Gandhi', party:'Congress', symbol:'✋', votes: 3500},
+      {name:'Arvind Kejriwal', party:'AAP', symbol:'🧹', votes: 2000}
+    ]
+  },
+  { 
+    id: 2, 
+    name:'Maharashtra State Assembly', 
+    date:'2024-10-20', 
+    status:'UPCOMING',
+    candidates: [
+      {name:'Uddhav Thackeray', party:'Shiv Sena', symbol:'🐅', votes: 0},
+      {name:'Ajit Pawar', party:'NCP', symbol:'⏰', votes: 0},
+      {name:'Raj Thackeray', party:'MNS', symbol:'🚂', votes: 0}
+    ]
+  }
+];
+
+let currentVoteStep = 0;
+let activeElection = null;
+let selectedCandidate = 0;
+
+// RENDER STATIC UI
+document.getElementById('featureGrid').innerHTML = features.map(f=>`
+  <div class="glass p-6 rounded-2xl hover:border-orange-500/50 transition border border-transparent hover:scale-105">
+    <div class="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 mb-4"><i data-lucide="${f.icon}" class="w-6 h-6"></i></div>
+    <h3 class="text-xl font-bold mb-2">${f.title}</h3><p class="text-gray-400 text-sm">${f.desc}</p>
+  </div>`).join('');
+
+document.getElementById('stepsGrid').innerHTML = steps.map((s,i)=>`
+  <div class="glass p-4 rounded-xl text-center">
+    <div class="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center mx-auto mb-2 font-bold text-sm">${i+1}</div>
+    <p class="text-sm">${s}</p>
+  </div>`).join('');
+
+// RENDER DYNAMIC ELECTIONS
+function renderFrontendElections() {
+  const liveCount = elections.filter(e => e.status === 'LIVE').length;
+  document.getElementById('dashActiveElections').innerText = liveCount;
+
+  document.getElementById('electionGrid').innerHTML = elections.map(e=>`
+    <div class="glass p-6 rounded-2xl hover:scale-105 transition">
+      <div class="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center mb-4"><i data-lucide="landmark" class="w-6 h-6"></i></div>
+      <h2 class="text-xl font-bold">${e.name}</h2><p class="text-gray-400 text-sm mb-4">Date: ${new Date(e.date).toLocaleDateString()}</p>
+      <div class="flex justify-between items-center text-sm mb-4">
+        <span>Candidates: ${e.candidates.length}</span>
+        <span class="${e.status==='LIVE'?'text-green-500':e.status==='UPCOMING'?'text-yellow-500':'text-gray-500'}">${e.status}</span>
+      </div>
+      <button onclick="startVoting(${e.id})" class="w-full py-2 border border-orange-500 text-orange-500 rounded-lg hover:bg-orange-500 hover:text-black transition font-bold ${e.status==='LIVE'?'':'opacity-50 cursor-not-allowed'}" ${e.status==='LIVE'?'':'disabled'}>Vote</button>
+    </div>`).join('');
+
+  document.getElementById('dashElectionList').innerHTML = elections.map(e=>`
+    <div class="flex items-center justify-between bg-black/20 p-4 rounded-lg">
+      <div><h3 class="font-bold">${e.name}</h3><p class="text-sm text-gray-400">Date: ${new Date(e.date).toLocaleDateString()}</p></div>
+      <div class="flex items-center gap-3">
+        <span class="px-2 py-1 rounded text-xs ${e.status==='LIVE'?'bg-red-500/20 text-red-400':e.status==='UPCOMING'?'bg-yellow-500/20 text-yellow-400':'bg-gray-500/20 text-gray-400'}">${e.status}</span>
+        ${e.status==='LIVE' ? `<button onclick="startVoting(${e.id})" class="px-4 py-2 bg-orange-500 text-black font-bold rounded-lg text-sm hover:bg-orange-400 transition">Vote Now</button>` : `<button class="px-4 py-2 border border-gray-600 text-gray-500 rounded-lg text-sm cursor-not-allowed" disabled>Notify Me</button>`}
+      </div>
+    </div>
+  `).join('');
+  lucide.createIcons();
+}
+renderFrontendElections();
+
+// ADMIN ELECTIONS RENDER
+function renderAdminElections() {
+  const list = document.getElementById('adminElectionList');
+  if(elections.length === 0) {
+    list.innerHTML = `<p class="text-gray-500 text-center py-4">No elections found. Add a new one!</p>`;
+    return;
+  }
+  
+  // Total Votes Count
+  let totalVotes = 0;
+  elections.forEach(e => e.candidates.forEach(c => totalVotes += c.votes));
+  if(document.getElementById('adminTotalVotes')) {
+    document.getElementById('adminTotalVotes').innerText = totalVotes.toLocaleString('en-IN');
+  }
+
+  list.innerHTML = elections.map(e=>`
+    <div class="flex justify-between items-center bg-black/20 p-3 rounded-lg">
+      <div>
+        <span class="font-bold">${e.name}</span>
+        <span class="text-xs text-gray-400 block">${new Date(e.date).toLocaleDateString()} | ${e.candidates.length} Candidates</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-1 rounded text-xs ${e.status==='LIVE'?'bg-green-500/20 text-green-400':e.status==='UPCOMING'?'bg-yellow-500/20 text-yellow-400':'bg-gray-500/20 text-gray-400'}">${e.status}</span>
+        <button onclick="openElectionModal(${e.id})" class="p-2 text-blue-400 hover:bg-blue-500/10 rounded"><i data-lucide="edit" class="w-4 h-4"></i></button>
+        <button onclick="deleteElection(${e.id})" class="p-2 text-red-400 hover:bg-red-500/10 rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      </div>
+    </div>
+  `).join('');
+  lucide.createIcons();
+}
+
+// MODAL & CRUD FUNCTIONS
+function openElectionModal(id=null) {
+  const modal = document.getElementById('electionModal');
+  const title = document.getElementById('modalTitle');
+  document.getElementById('candidateList').innerHTML = '';
+  
+  if(id) {
+    title.innerText = 'Edit Election';
+    const e = elections.find(x => x.id === id);
+    document.getElementById('editId').value = e.id;
+    document.getElementById('elName').value = e.name;
+    document.getElementById('elDate').value = e.date;
+    document.getElementById('elStatus').value = e.status;
+    e.candidates.forEach(c => addCandidateRow(c));
+  } else {
+    title.innerText = 'Add New Election';
+    document.getElementById('editId').value = '';
+    document.getElementById('elName').value = '';
+    document.getElementById('elDate').value = '';
+    document.getElementById('elStatus').value = 'LIVE';
+    addCandidateRow();
+  }
+  modal.classList.remove('hidden');
+  lucide.createIcons();
+}
+
+function closeElectionModal() {
+  document.getElementById('electionModal').classList.add('hidden');
+}
+
+function addCandidateRow(data = {name:'', party:'', symbol:''}) {
+  const list = document.getElementById('candidateList');
+  const id = `cand-${Date.now()}-${Math.random()}`;
+  list.insertAdjacentHTML('beforeend', `
+    <div class="flex gap-2 items-center bg-black/20 p-2 rounded-lg" id="${id}">
+      <input type="text" placeholder="Name" class="flex-1 px-2 py-1 rounded bg-black/30 border border-white/10 outline-none text-sm cand-name" value="${data.name}">
+      <input type="text" placeholder="Party" class="w-24 px-2 py-1 rounded bg-black/30 border border-white/10 outline-none text-sm cand-party" value="${data.party}">
+      <input type="text" placeholder="Symbol" class="w-16 px-2 py-1 rounded bg-black/30 border border-white/10 outline-none text-center text-sm cand-symbol" value="${data.symbol}">
+      <button type="button" onclick="document.getElementById('${id}').remove()" class="text-red-400 p-1 hover:bg-red-500/10 rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+  `);
+  lucide.createIcons();
+}
+
+function saveElection() {
+  const id = document.getElementById('editId').value;
+  const name = document.getElementById('elName').value;
+  const date = document.getElementById('elDate').value;
+  const status = document.getElementById('elStatus').value;
+  
+  const candidateRows = document.querySelectorAll('#candidateList > div');
+  const candidates = [];
+  candidateRows.forEach(row => {
+    const cname = row.querySelector('.cand-name').value.trim();
+    const cparty = row.querySelector('.cand-party').value.trim();
+    const csymbol = row.querySelector('.cand-symbol').value.trim() || '👤';
+    // Preserve votes if editing existing candidate
+    let cvotes = 0;
+    if(id) {
+      const oldElection = elections.find(x => x.id == id);
+      const oldCand = oldElection ? oldElection.candidates.find(c => c.name === cname && c.party === cparty) : null;
+      if(oldCand) cvotes = oldCand.votes;
+    }
+    if(cname) candidates.push({name: cname, party: cparty, symbol: csymbol, votes: cvotes});
+  });
+  
+  if(id) {
+    const e = elections.find(x => x.id == id);
+    e.name = name; e.date = date; e.status = status; e.candidates = candidates;
+  } else {
+    elections.push({ id: Date.now(), name, date, status, candidates });
+  }
+  
+  renderAdminElections();
+  renderFrontendElections();
+  closeElectionModal();
+}
+
+function deleteElection(id) {
+  if(confirm('Are you sure you want to delete this election?')) {
+    elections = elections.filter(e => e.id !== id);
+    renderAdminElections();
+    renderFrontendElections();
+  }
+}
+
+// PAGE NAV
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='results') initResultCharts();
+  if(id==='admin') { initAdminCharts(); renderAdminElections(); }
+  lucide.createIcons();
+}
+function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
+
+// ADMIN LOGIN
+function checkAdminLogin() {
+  const user = document.getElementById('adminUser').value;
+  const pass = document.getElementById('adminPass').value;
+  const err = document.getElementById('adminError');
+  if(user === 'aditya12' && pass === 'aaa') {
+    err.classList.add('hidden');
+    showPage('admin');
+  } else {
+    err.classList.remove('hidden');
+    lucide.createIcons();
+  }
+}
+
+// REGISTER FLOW
+let regStep = 1;
+function nextRegStep() {
+  document.getElementById('regStep'+regStep).classList.add('hidden');
+  regStep++;
+  document.getElementById('regStep'+regStep).classList.remove('hidden');
+  lucide.createIcons();
+}
+
+// VOTING FLOW
+function startVoting(electionId) {
+  activeElection = elections.find(e => e.id === electionId);
+  if(!activeElection || activeElection.status !== 'LIVE') return;
+  document.getElementById('voteElectionName').innerText = `Voting for: ${activeElection.name}`;
+  showPage('vote');
+  initVote();
+}
+
+function initVote() {
+  currentVoteStep = 0;
+  document.getElementById('voteContainer').classList.remove('hidden');
+  document.getElementById('voteSuccess').classList.add('hidden');
+  updateVoteStep();
+}
+
+function updateVoteStep() {
+  for(let i=0;i<4;i++){
+    const el=document.getElementById('step'+i);
+    el.className = i<=currentVoteStep ? 'step-circle w-10 h-10 rounded-full bg-orange-500 text-black flex items-center justify-center font-bold' : 'step-circle w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center font-bold';
+    if(i<3){document.getElementById('line'+i).className = i<currentVoteStep ? 'w-8 md:w-16 h-1 bg-orange-500' : 'w-8 md:w-16 h-1 bg-gray-700';}
+  }
+  const content = document.getElementById('voteContent');
+  if(currentVoteStep===0){
+    content.innerHTML = `<div class="text-center py-10"><i data-lucide="fingerprint" class="w-16 h-16 text-orange-500 mx-auto mb-4"></i><h2 class="text-2xl font-bold mb-2">Aadhaar Verification</h2><p class="text-gray-400 mb-6">Verifying your identity against mock database...</p><button onclick="nextVoteStep()" class="px-8 py-3 bg-orange-500 text-black font-bold rounded-lg hover:bg-orange-400">Verify Aadhaar</button></div>`;
+  } else if(currentVoteStep===1){
+    content.innerHTML = `<div class="text-center py-10"><i data-lucide="scan-face" class="w-16 h-16 text-orange-500 mx-auto mb-4"></i><h2 class="text-2xl font-bold mb-2">Face & Device Verification</h2><p class="text-gray-400 mb-6">Look into the camera. Checking liveness and device security status...</p><button onclick="nextVoteStep()" class="px-8 py-3 bg-orange-500 text-black font-bold rounded-lg hover:bg-orange-400">Verification Complete</button></div>`;
+  } else if(currentVoteStep===2){
+    content.innerHTML = `<h2 class="text-2xl font-bold mb-6 text-center">Select Your Candidate</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4">${activeElection.candidates.map((c,i)=>`<div class="candidate-card bg-black/30 p-4 rounded-xl border-2 border-transparent hover:border-orange-500 text-center" onclick="selectCandidate(${i})"><div class="w-16 h-16 rounded-full bg-blue-900 flex items-center justify-center text-3xl mx-auto mb-3">${c.symbol}</div><h3 class="font-bold">${c.name}</h3><p class="text-xs text-gray-400">${c.party}</p></div>`).join('')}</div>`;
+  } else if(currentVoteStep===3){
+    const selCand = activeElection.candidates[selectedCandidate];
+    content.innerHTML = `<div class="text-center py-10"><i data-lucide="shield-check" class="w-16 h-16 text-green-500 mx-auto mb-4"></i><h2 class="text-2xl font-bold mb-2">Confirm Your Vote</h2><p class="text-gray-400 mb-6">You are about to vote for <span class="text-orange-500 font-bold">${selCand.name}</span> (${selCand.party}). This action cannot be undone.</p><button onclick="castVote()" class="px-8 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-500">Cast Vote Securely</button></div>`;
+  }
+  lucide.createIcons();
+}
+
+function nextVoteStep() { currentVoteStep++; updateVoteStep(); }
+function selectCandidate(i) { selectedCandidate = i; currentVoteStep = 3; updateVoteStep(); }
+
+function castVote() {
+  activeElection.candidates[selectedCandidate].votes += 1; // INCREMENT VOTE
+  document.getElementById('voteContainer').classList.add('hidden');
+  document.getElementById('voteSuccess').classList.remove('hidden');
+  const ref = 'XFR-' + Math.random().toString(36).substr(2,3).toUpperCase() + '-' + Math.random().toString(36).substr(2,4).toUpperCase() + '-2024';
+  document.getElementById('voteRef').textContent = ref;
+  document.getElementById('voteTimestamp').textContent = 'Timestamp: ' + new Date().toLocaleString();
+  lucide.createIcons();
+  initResultCharts(); // UPDATE CHARTS IMMEDIATELY
+}
+
+// CHARTS
+let pieChart, barChart, stateChart, adminStateChart, adminPieChart;
+
+function getChartData() {
+  let target = activeElection || elections.find(e => e.status === 'LIVE') || elections[0];
+  if(!target) return { labels: [], data: [] };
+  return {
+    labels: target.candidates.map(c => c.name),
+    data: target.candidates.map(c => c.votes)
+  };
+}
+
+function initResultCharts() {
+  const chartData = getChartData();
+  const leaderIndex = chartData.data.indexOf(Math.max(...chartData.data));
+  
+  if(chartData.labels.length > 0) {
+    document.getElementById('winnerName').innerText = chartData.labels[leaderIndex];
+    document.getElementById('winnerParty').innerText = elections.find(e => e.candidates.some(c => c.name === chartData.labels[leaderIndex])).name;
+  }
+
+  if(pieChart) pieChart.destroy();
+  if(barChart) barChart.destroy();
+  if(stateChart) stateChart.destroy();
+  
+  pieChart = new Chart(document.getElementById('pieChart'),{type:'pie',data:{labels:chartData.labels,datasets:[{data:chartData.data,backgroundColor:['#FF9933','#138808','#000080','#FF0000','#FFFF00']}]},options:{plugins:{legend:{labels:{color:'#fff'}}}}});
+  barChart = new Chart(document.getElementById('barChart'),{type:'bar',data:{labels:chartData.labels,datasets:[{data:chartData.data,backgroundColor:['#FF9933','#138808','#000080','#FF0000','#FFFF00']}]},options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#fff'},grid:{color:'#333'}},y:{ticks:{color:'#fff'},grid:{color:'#333'}}}}});
+  stateChart = new Chart(document.getElementById('stateChart'),{type:'bar',data:{labels:['Maharashtra','UP','Tamil Nadu','Bengal','Gujarat'],datasets:[{label:'Votes',data:[4500000,8000000,3200000,4100000,3800000],backgroundColor:'#FF9933'}]},options:{plugins:{legend:{labels:{color:'#fff'}}},scales:{x:{ticks:{color:'#fff'},grid:{color:'#333'}},y:{ticks:{color:'#fff'},grid:{color:'#333'}}}}});
+}
+
+function initAdminCharts() {
+  const chartData = getChartData();
+  if(adminStateChart) adminStateChart.destroy();
+  if(adminPieChart) adminPieChart.destroy();
+  adminStateChart = new Chart(document.getElementById('adminStateChart'),{type:'bar',data:{labels:['Maharashtra','UP','Tamil Nadu','Bengal','Gujarat'],datasets:[{label:'Votes',data:[4500000,8000000,3200000,4100000,3800000],backgroundColor:['#FF9933','#138808','#000080','#FF9933','#138808']}]},options:{plugins:{legend:{labels:{color:'#fff'}}},scales:{x:{ticks:{color:'#fff'},grid:{color:'#333'}},y:{ticks:{color:'#fff'},grid:{color:'#333'}}}}});
+  adminPieChart = new Chart(document.getElementById('adminPieChart'),{type:'pie',data:{labels:chartData.labels,datasets:[{data:chartData.data,backgroundColor:['#FF9933','#138808','#000080','#FF0000','#FFFF00']}]},options:{plugins:{legend:{labels:{color:'#fff'}}}}});
+}
+
+// AI ASSISTANT
+function toggleAI() {
+  document.getElementById('aiPanel').classList.toggle('hidden');
+  document.getElementById('aiIcon').setAttribute('data-lucide', document.getElementById('aiPanel').classList.contains('hidden') ? 'bot' : 'x');
+  lucide.createIcons();
+}
+const aiMsgs = [{sender:'bot',text:'Namaste! I am your AI Voting Assistant. How can I help you today?'}];
+function renderAIMessages() {
+  document.getElementById('aiMessages').innerHTML = aiMsgs.map(m=>`<div class="flex ${m.sender==='user'?'justify-end':'justify-start'}"><div class="max-w-[80%] p-2 rounded-lg text-sm ${m.sender==='user'?'bg-blue-900 text-white':'bg-white/10 text-white'}">${m.text}</div></div>`).join('');
+  document.getElementById('aiMessages').scrollTop = document.getElementById('aiMessages').scrollHeight;
+}
+function sendAI() {
+  const input = document.getElementById('aiInput');
+  if(!input.value) return;
+  aiMsgs.push({sender:'user',text:input.value});
+  input.value = '';
+  renderAIMessages();
+  setTimeout(()=>{
+    const responses = ['For security reasons, please ensure your Aadhaar and Face Verification is complete before voting.','You can check your vote status in the Dashboard section.','One Aadhaar = One Vote. Multiple voting is strictly prohibited.','Your vote is encrypted and stored securely on the blockchain ledger.'];
+    aiMsgs.push({sender:'bot',text:responses[Math.floor(Math.random()*responses.length)]});
+    renderAIMessages();
+  },800);
+}
+renderAIMessages();
+
+// INIT
+lucide.createIcons();
+</script>
+</body>
+</html>
